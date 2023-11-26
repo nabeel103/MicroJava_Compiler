@@ -1,5 +1,9 @@
-value = ['abc','data','a','b']
-attr = [('static','1'),('static','2'),('static,3'),('static,4')]
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+# value = ['abc','data','a','b']
+# attr = [('static','1'),('static','2'),('static,3'),('static,4')]
+
 import random
 class RBNode:
     def __init__(self, val):
@@ -169,18 +173,47 @@ def print_tree(node, lines, level=0):
                      str(node.val) + ' ' + ('red' if node.red else 'black') + ' ' + str(node.attr))
         print_tree(node.right, lines, level + 1)
 
-def main():
+def visualize_tree(node, parent_x=0, parent_y=0, x=0, y=0, level=1, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+
+    if node.val is not None:
+        color = 'red' if node.red else 'black'
+        text_color = 'white' if node.red else 'white'
+        ax.add_patch(Rectangle((x, y), 0.02, 0.02, fill=True, color=color))
+        ax.text(x + 0.010, y + 0.01, str(node.val), ha='center', va='center', color=text_color)
+
+    if node.left.val is not None:
+        child_x = x - 0.05 / level
+        child_y = y - 0.05
+        ax.plot([x, child_x], [y, child_y], color='black')
+        visualize_tree(node.left, x, y, child_x, child_y, level * 2, ax)
+
+    if node.right.val is not None:
+        child_x = x + 0.05 / level
+        child_y = y - 0.05
+        ax.plot([x, child_x], [y, child_y], color='black')
+        visualize_tree(node.right, x, y, child_x, child_y, level * 2, ax)
+
+    ax.axis('off')
+    return ax
+
+
+
+def main_function(tokens):
     tree = RBTree()
-    for i in range(0,len(value)):
-        tree.insert(value[i],attr[i])
+    # for i in range(0,len(value)):
+    #     
+    for token in tokens:
+        print(token)
+        tree.insert(token.value,token.token_type)
     print(tree)
-    value_search = lookup(tree.root,'abc')
-    print(value_search)
-    attribute = get_attribute(tree.root, 'abc')
-    print(attribute)
+    # value_search = lookup(tree.root,'abc')
+    # print(value_search)
+    # attribute = get_attribute(tree.root, 'abc')
+    # print(attribute)
     print("Free the storage of Symbol Table")
-    print("Again print tree: ")
+    # print("Again print tree: ")
+    visualize_tree(tree.root)
+    plt.show()
     free(tree.root)
-
-
-main()
